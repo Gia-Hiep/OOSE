@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><title>New Category</title></head>
+<body>
+<h2>Thêm danh mục</h2>
+<form method="post" action="/categories/save">
+  <label>CanBeShipped: <input type="checkbox" name="CanBeShipped"></label><br/>
+  <button type="submit">Save</button>
+</form>
+<p><a href="/categories">Back</a></p>
+</body></html>

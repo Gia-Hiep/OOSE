@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><title>Products</title></head>
+<body>
+<h2>Danh sách sản phẩm</h2>
+<p><a href="/products/new">+ Thêm sản phẩm</a> | <a href="/">Home</a></p>
+<table border="1" cellpadding="6">
+  <tr><th>ID</th><th>Price</th><th>Weight</th><th>CategoryID</th></tr>
+  <tr th:each="p : ${products}">
+    <td th:text="${p.Product_id}">1</td>
+    <td th:text="${p.Price}">0</td>
+    <td th:text="${p.Weight}">0</td>
+    <td th:text="${p.category.Product_category_id}">1</td>
+  </tr>
+</table>
+</body></html>

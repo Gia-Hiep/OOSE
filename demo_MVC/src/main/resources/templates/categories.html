@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><title>Categories</title></head>
+<body>
+<h2>Danh mục</h2>
+<p><a href="/categories/new">+ Thêm danh mục</a> | <a href="/">Home</a></p>
+<table border="1" cellpadding="6">
+  <tr><th>ID</th><th>CanBeShipped</th></tr>
+  <tr th:each="c : ${categories}">
+    <td th:text="${c.Product_category_id}">1</td>
+    <td th:text="${c.Can_be_shipped}">true</td>
+  </tr>
+</table>
+</body></html>
