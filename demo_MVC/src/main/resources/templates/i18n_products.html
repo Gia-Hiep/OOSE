@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>I18N Products</title>
+</head>
+<body>
+<h2>Danh sách sản phẩm theo ngôn ngữ</h2>
+
+<form method="get" th:action="@{/i18n-products}">
+    <label>Language:
+        <select name="lang">
+            <option th:value="'VI'" th:selected="${lang=='VI'}">VI</option>
+            <option th:value="'EN'" th:selected="${lang=='EN'}">EN</option>
+        </select>
+    </label>
+    <button type="submit">Xem</button>
+    <a href="/">Home</a>
+</form>
+
+<table border="1" cellpadding="6" style="margin-top: 10px;">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Product Name (theo [[${lang}]])</th>
+        <th>Category Name (theo [[${lang}]])</th>
+        <th>Price</th>
+        <th>Weight</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="r : ${rows}">
+        <td th:text="${r[0]}">1</td>
+        <td th:text="${r[1]}">Laptop</td>
+        <td th:text="${r[2]}">Electronics</td>
+        <td th:text="${r[3]}">1000</td>
+        <td th:text="${r[4]}">2.5</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
