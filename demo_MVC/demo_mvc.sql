@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1:3306
--- Thời gian đã tạo: Th10 19, 2025 lúc 02:17 AM
+-- Thời gian đã tạo: Th10 26, 2025 lúc 12:19 PM
 -- Phiên bản máy phục vụ: 5.7.31
 -- Phiên bản PHP: 7.3.21
 
@@ -40,7 +40,8 @@ CREATE TABLE IF NOT EXISTS `language` (
 
 INSERT INTO `language` (`language_id`, `language_name`) VALUES
 ('EN', 'English'),
-('VI', 'Tiếng Việt');
+('VI', 'Tiếng Việt'),
+('JA', 'Japanese');
 
 -- --------------------------------------------------------
 
@@ -119,7 +120,11 @@ INSERT INTO `product_category_translation` (`product_category_id`, `language_id`
 (3, 'EN', 'Digital Services'),
 (3, 'VI', 'Dịch vụ số'),
 (4, 'EN', 'Vehicle'),
-(4, 'VI', 'XE');
+(4, 'VI', 'XE'),
+(1, 'JA', '電子機器'),
+(2, 'JA', '衣類'),
+(3, 'JA', 'デジタルサービス'),
+(4, 'JA', '自動車');
 
 -- --------------------------------------------------------
 
@@ -149,7 +154,11 @@ INSERT INTO `product_translation` (`product_id`, `language_id`, `product_name`, 
 (3, 'EN', 'Online Course', 'Learn coding skills anytime'),
 (3, 'VI', 'Khóa học trực tuyến', 'Học lập trình mọi lúc mọi nơi'),
 (4, 'EN', 'CONTAINER', 'CONTAINER'),
-(4, 'VI', 'XE TẢI', 'XE TẢI');
+(4, 'VI', 'XE TẢI', 'XE TẢI'),
+(1, 'JA', 'ノートパソコン', '軽量で高性能なノートPC'),
+(2, 'JA', 'Tシャツ', 'カジュアルで快適なTシャツ'),
+(3, 'JA', 'オンラインコース', '自宅で学べるオンライン学習コース'),
+(4, 'JA', 'トラック', '大型で強力な貨物トラック');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
