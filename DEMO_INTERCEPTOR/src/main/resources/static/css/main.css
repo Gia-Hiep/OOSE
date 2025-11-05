@@ -1,0 +1,6 @@
+body { font-family: system-ui, Arial, sans-serif; margin: 24px; }
+header h1 { margin: 0; }
+nav a { margin-right: 8px; }
+form { display: grid; gap: 8px; max-width: 300px; }
+input { padding: 6px 8px; }
+button { padding: 8px 10px; cursor: pointer; }

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{_base :: layout('Home', ~{::section})}">
+<section>
+  <h2>Welcome, <span th:text="${username}">user</span> 👋</h2>
+  <p>Trang này đã được bảo vệ bởi Interceptor (yêu cầu đăng nhập).</p>
+  <ul>
+    <li>Interceptor ghi lại thời gian xử lý mỗi request.</li>
+    <li>Nếu chưa đăng nhập, request sẽ bị redirect về <code>/login</code>.</li>
+  </ul>
+</section>
+</html>

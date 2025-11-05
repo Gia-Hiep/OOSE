@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{_base :: layout('Đăng nhập', ~{::section})}">
+<section>
+  <h2>Đăng nhập</h2>
+  <form method="post" th:action="@{/login}">
+    <label>Username</label>
+    <input name="username" required/>
+    <label>Password</label>
+    <input name="password" type="password"/>
+    <button type="submit">Login</button>
+  </form>
+  <p><em>Demo: chỉ cần nhập username bất kỳ (ví dụ: <strong>admin</strong>)</em></p>
+</section>
+</html>

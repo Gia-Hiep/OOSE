@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{_base :: layout('403 - Access Denied', ~{::section})}">
+<section>
+  <h2>403 - Access Denied</h2>
+  <p>Bạn không có quyền truy cập trang này.</p>
+  <a th:href="@{/login}">Về trang đăng nhập</a>
+</section>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(pageTitle, content)">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${pageTitle} ?: 'Interceptor Demo'">Interceptor Demo</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}" href="/css/main.css"/>
+</head>
+<body>
+<header>
+  <h1>Interceptor Demo</h1>
+  <nav>
+    <a th:href="@{/home}">Home</a> |
+    <a th:href="@{/logout}">Logout</a>
+  </nav>
+  <hr/>
+</header>
+
+<main th:insert="${content}">
+  <!-- Page content will be inserted here -->
+</main>
+
+<footer>
+  <hr/>
+  <small>Spring Boot + Thymeleaf + Interceptor</small>
+</footer>
+</body>
+</html>
