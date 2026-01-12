@@ -1,14 +1,14 @@
-package com.app.servlet; // VN_Package chua servlet tim kiem
+package com.app.servlet; 
 
-import com.app.dao.CustomerDAO; // VN_Import DAO thao tac du lieu khach hang
-import com.app.service.CustomerSearchService; // VN_Import service xu ly tim kiem
-import com.app.service.SearchResult; // VN_Import doi tuong ket qua tim kiem
+import com.app.dao.CustomerDAO; 
+import com.app.service.CustomerSearchService; 
+import com.app.service.SearchResult; 
 
-import javax.servlet.ServletException; // VN_Import ServletException
-import javax.servlet.annotation.WebServlet; // VN_Import WebServlet annotation
-import javax.servlet.http.*; // VN_Import cac lop HTTP servlet
+import javax.servlet.ServletException; 
+import javax.servlet.annotation.WebServlet; 
+import javax.servlet.http.*; 
 
-import java.io.IOException; // VN_Import IOException
+import java.io.IOException; 
 
 /**
  * VN_Servlet tim kiem khach hang.
