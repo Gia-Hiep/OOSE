@@ -1,0 +1,161 @@
+package com.app.dao; // Khai báo package chứa lớp DAO Customer
+
+import com.app.dto.Customer; // Import DTO Customer để map dữ liệu từ DB
+import com.app.util.DB; // Import class DB để lấy Connection JDBC
+
+import java.sql.Connection; // Import lớp Connection của JDBC
+import java.sql.PreparedStatement; // Import PreparedStatement để chạy SQL có tham số
+import java.sql.ResultSet; // Import ResultSet để đọc dữ liệu trả về
+import java.util.ArrayList; // Import ArrayList để lưu danh sách dữ liệu
+import java.util.List; // Import List interface
+
+/**
+ * CustomerDAO: lớp DAO dùng để thao tác DB cho bảng MSTCUSTOMER.
+ * - DAO = Data Access Object (tầng truy cập dữ liệu)
+ * - Chỉ chứa code SQL + map dữ liệu DB -> DTO Customer
+ */
+public class CustomerDAO { // Khai báo class CustomerDAO
+
+    /**
+     * Đếm tổng số khách hàng thỏa điều kiện tìm kiếm.
+     * Mục đích: phục vụ phân trang (biết tổng số record để tính tổng số trang).
+     *
+     * @param name  tên khách hàng (tìm LIKE, chứa chuỗi)
+     * @param sex   giới tính (so sánh chính xác =)
+     * @param bFrom ngày sinh từ (>=)
+     * @param bTo   ngày sinh đến (<=)
+     * @return số lượng record thỏa điều kiện
+     */
+    public int countSearch(String name, String sex, String bFrom, String bTo) { // Hàm đếm số record thỏa điều kiện
+
+        StringBuilder sql = new StringBuilder(); // Tạo StringBuilder để xây dựng câu SQL động
+
+        sql.append("SELECT COUNT(*) AS CNT FROM MSTCUSTOMER WHERE DELETE_YMD IS NULL "); // Câu SQL đếm record chưa bị xóa mềm
+
+        List<Object> params = new ArrayList<>(); // Danh sách tham số tương ứng với dấu ? trong SQL
+
+        if (name != null && !name.trim().isEmpty()) { // Kiểm tra người dùng có nhập tên không
+            sql.append("AND CUSTOMER_NAME LIKE ? "); // Thêm điều kiện tìm kiếm theo tên
+            params.add("%" + name.trim() + "%"); // Thêm tham số LIKE vào danh sách params
+        }
+
+        if (sex != null && !sex.trim().isEmpty()) { // Kiểm tra có chọn giới tính không
+            sql.append("AND SEX = ? "); // Thêm điều kiện lọc theo giới tính
+            params.add(sex.trim()); // Thêm giá trị giới tính vào params
+        }
+
+        if (bFrom != null && !bFrom.trim().isEmpty()) { // Kiểm tra có ngày sinh từ không
+            sql.append("AND BIRTHDAY >= ? "); // Thêm điều kiện ngày sinh từ
+            params.add(bFrom.trim()); // Thêm giá trị ngày sinh từ vào params
+        }
+
+        if (bTo != null && !bTo.trim().isEmpty()) { // Kiểm tra có ngày sinh đến không
+            sql.append("AND BIRTHDAY <= ? "); // Thêm điều kiện ngày sinh đến
+            params.add(bTo.trim()); // Thêm giá trị ngày sinh đến vào params
+        }
+
+        try (Connection cn = DB.getConnection(); // Lấy connection từ DB và tự động đóng
+             PreparedStatement ps = cn.prepareStatement(sql.toString())) { // Tạo PreparedStatement từ SQL
+
+            for (int i = 0; i < params.size(); i++) { // Vòng lặp set từng tham số
+                ps.setObject(i + 1, params.get(i)); // Gán giá trị params vào dấu ? tương ứng
+            }
+
+            try (ResultSet rs = ps.executeQuery()) { // Thực thi câu SELECT và nhận ResultSet
+                if (rs.next()) return rs.getInt("CNT"); // Lấy giá trị COUNT(*) từ cột CNT
+            }
+        } catch (Exception e) { // Bắt mọi exception xảy ra
+            e.printStackTrace(); // In lỗi ra console để debug
+        }
+
+        return 0; // Trả về 0 nếu không có dữ liệu hoặc xảy ra lỗi
+    }
+
+    /**
+     * Tìm kiếm danh sách khách hàng theo điều kiện + phân trang.
+     *
+     * @param name   tên khách hàng (LIKE)
+     * @param sex    giới tính (=)
+     * @param bFrom  ngày sinh từ (>=)
+     * @param bTo    ngày sinh đến (<=)
+     * @param offset số dòng bỏ qua (phân trang)
+     * @param limit  số dòng lấy (phân trang)
+     * @return danh sách Customer thỏa điều kiện
+     */
+    public List<Customer> search(String name, String sex, String bFrom, String bTo, int offset, int limit) { // Hàm search có phân trang
+
+        StringBuilder sql = new StringBuilder(); // Tạo StringBuilder để ghép câu SQL
+
+        sql.append("SELECT CUSTOMER_ID, CUSTOMER_NAME, SEX, BIRTHDAY, [ADDRESS] "); // Chọn các cột cần thiết
+        sql.append("FROM MSTCUSTOMER WHERE DELETE_YMD IS NULL "); // Lọc các bản ghi chưa bị xóa mềm
+
+        List<Object> params = new ArrayList<>(); // Danh sách tham số cho PreparedStatement
+
+        if (name != null && !name.trim().isEmpty()) { // Kiểm tra có nhập tên không
+            sql.append("AND CUSTOMER_NAME LIKE ? "); // Thêm điều kiện LIKE theo tên
+            params.add("%" + name.trim() + "%"); // Thêm giá trị LIKE vào params
+        }
+
+        if (sex != null && !sex.trim().isEmpty()) { // Kiểm tra có chọn giới tính không
+            sql.append("AND SEX = ? "); // Thêm điều kiện lọc theo giới tính
+            params.add(sex.trim()); // Thêm giá trị giới tính vào params
+        }
+
+        if (bFrom != null && !bFrom.trim().isEmpty()) { // Kiểm tra có ngày sinh từ không
+            sql.append("AND BIRTHDAY >= ? "); // Thêm điều kiện ngày sinh từ
+            params.add(bFrom.trim()); // Thêm ngày sinh từ vào params
+        }
+
+        if (bTo != null && !bTo.trim().isEmpty()) { // Kiểm tra có ngày sinh đến không
+            sql.append("AND BIRTHDAY <= ? "); // Thêm điều kiện ngày sinh đến
+            params.add(bTo.trim()); // Thêm ngày sinh đến vào params
+        }
+
+        sql.append("ORDER BY CUSTOMER_ID "); // Sắp xếp theo CUSTOMER_ID để phân trang ổn định
+
+        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY "); // Cú pháp phân trang SQL Server
+
+        params.add(offset); // Thêm offset vào danh sách params
+        params.add(limit); // Thêm limit vào danh sách params
+
+        List<Customer> out = new ArrayList<>(); // Tạo danh sách kết quả trả về
+
+        try (Connection cn = DB.getConnection(); // Lấy connection từ DB
+             PreparedStatement ps = cn.prepareStatement(sql.toString())) { // Tạo PreparedStatement
+
+            for (int i = 0; i < params.size(); i++) { // Duyệt danh sách params
+                ps.setObject(i + 1, params.get(i)); // Gán giá trị params vào dấu ?
+            }
+
+            try (ResultSet rs = ps.executeQuery()) { // Thực thi query và nhận ResultSet
+
+                while (rs.next()) { // Duyệt từng dòng dữ liệu trả về
+
+                    Customer c = new Customer(); // Tạo đối tượng Customer DTO
+
+                    c.setCustomerId(rs.getLong("CUSTOMER_ID")); // Gán CUSTOMER_ID cho DTO
+                    c.setCustomerName(rs.getString("CUSTOMER_NAME")); // Gán CUSTOMER_NAME cho DTO
+
+                    String s = rs.getString("SEX"); // Lấy giá trị SEX từ DB
+                    Integer sexVal = null; // Khai báo biến Integer để gán giới tính
+
+                    if (s != null && (s.equals("0") || s.equals("1"))) { // Kiểm tra SEX hợp lệ
+                        sexVal = Integer.parseInt(s); // Chuyển String sang Integer
+                    }
+                    c.setSex(sexVal); // Gán giới tính vào DTO
+
+                    c.setBirthday(rs.getString("BIRTHDAY")); // Gán ngày sinh cho DTO
+
+                    c.setAddress(rs.getString("ADDRESS")); // Gán địa chỉ cho DTO
+
+                    out.add(c); // Thêm Customer vào danh sách kết quả
+                }
+            }
+
+        } catch (Exception e) { // Bắt lỗi nếu có
+            e.printStackTrace(); // In lỗi ra console
+        }
+
+        return out; // Trả về danh sách Customer
+    }
+}
