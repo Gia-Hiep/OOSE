@@ -1,0 +1,130 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ page import="java.util.List"%>
+<%@ page import="com.app.dto.Customer"%>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Search Customer</title>
+</head>
+<body>
+
+	<h1>Training</h1>
+	<hr />
+	<div>Login &gt; Search Customer</div>
+
+	<br />
+
+	<div>
+		<span id="lblUserName">
+			Welcome <%= request.getAttribute("loginUser") == null ? "" : request.getAttribute("loginUser") %>
+		</span>
+		<a id="lblLogout" href="<%=request.getContextPath()%>/logout">Log Out</a>
+	</div>
+
+	<br /><br />
+
+	<!-- SEARCH AREA (giữ layout, để mặc định rỗng) -->
+	<form method="get" action="<%=request.getContextPath()%>/customers">
+		<div class="search-area">
+			<label>Customer Name</label>
+			<input type="text" id="txtCustomerName" name="txtCustomerName" maxlength="50" value="" />
+
+			<label>Sex</label>
+			<select id="cboSex" name="cboSex">
+				<option value="" selected></option>
+				<option value="0">Male</option>
+				<option value="1">Female</option>
+			</select>
+
+			<label>Birthday</label>
+			<input type="text" id="txtBirthdayFrom" name="txtBirthdayFrom" maxlength="10" value="" />
+			<span>~</span>
+			<input type="text" id="txtBirthdayTo" name="txtBirthdayTo" maxlength="10" value="" />
+
+			<button id="btnSearch" type="submit">Search</button>
+		</div>
+	</form>
+
+	<br />
+
+	<!-- PAGING (giữ nút, chưa xử lý) -->
+	<div>
+		<a id="btnFirst" href="#">&lt;&lt;</a>
+		&nbsp;
+		<a id="btnPrevious" href="#">&lt;</a>
+		&nbsp;
+		<a id="btnNext" href="#">&gt;</a>
+		&nbsp;
+		<a id="btnLast" href="#">&gt;&gt;</a>
+	</div>
+
+	<br />
+
+	<!-- RESULT LIST (PHẦN ĐANG XỬ LÝ THẬT) -->
+	<table border="1">
+		<thead>
+			<tr>
+				<th><input type="checkbox" id="chkAll" /></th>
+				<th>Customer ID</th>
+				<th>Customer Name</th>
+				<th>Sex</th>
+				<th>Birthday</th>
+				<th>Address</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			<%
+			List<Customer> rows = (List<Customer>) request.getAttribute("rows");
+			if (rows == null || rows.isEmpty()) {
+			%>
+				<tr>
+					<td colspan="6" style="text-align: center;">No data</td>
+				</tr>
+			<%
+			} else {
+				for (Customer c : rows) {
+					String sexText = "";
+					if (c.getSex() != null) {
+						sexText = (c.getSex() == 0) ? "Male" : "Female";
+					}
+			%>
+				<tr>
+					<td><input type="checkbox" class="chkDetail" /></td>
+
+					<td class="lblCustomerId">
+						<a href="<%=request.getContextPath()%>/edit?customerId=<%=c.getCustomerId()%>">
+							<%=c.getCustomerId()%>
+						</a>
+					</td>
+
+					<td class="lblCustomerName"><%=c.getCustomerName() == null ? "" : c.getCustomerName()%></td>
+					<td class="lblSex"><%=sexText%></td>
+					<td class="lblBirthday"><%=c.getBirthday() == null ? "" : c.getBirthday()%></td>
+					<td class="lblAddress"><%=c.getAddress() == null ? "" : c.getAddress()%></td>
+				</tr>
+			<%
+				}
+			}
+			%>
+		</tbody>
+	</table>
+
+	<br />
+
+	<!-- ACTION BUTTONS (giữ nút, mặc định chưa xử lý) -->
+	<div>
+		<button id="btnAddNew" type="button">Add New</button>
+		<button id="btnDelete" type="button">Delete</button>
+	</div>
+
+	<br /><br />
+
+	<hr />
+	<div>Copyright (C) 2000-2008 FUJINET. All Rights Reserved.</div>
+
+</body>
+</html>
