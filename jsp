@@ -18,3 +18,13 @@ boolean disLast  = request.getAttribute("disLast")  != null && (Boolean) request
   <a id="btnLast" href="#"
      <%= disLast ? "style='pointer-events:none;color:gray;'" : "" %>>&gt;&gt;</a>
 </div>
+
+
+<%
+boolean disDelete = request.getAttribute("disDelete") != null && (Boolean) request.getAttribute("disDelete");
+%>
+
+<div>
+  <button id="btnAddNew" type="button">Add New</button>
+  <button id="btnDelete" type="button" <%= disDelete ? "disabled" : "" %>>Delete</button>
+</div>
