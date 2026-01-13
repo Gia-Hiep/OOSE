@@ -28,3 +28,39 @@ boolean disDelete = request.getAttribute("disDelete") != null && (Boolean) reque
   <button id="btnAddNew" type="button">Add New</button>
   <button id="btnDelete" type="button" <%= disDelete ? "disabled" : "" %>>Delete</button>
 </div>
+
+
+<script>
+function isValidYmd(v) {
+  if (v.length !== 10) return false;
+  if (v.charAt(4) !== '/' || v.charAt(7) !== '/') return false;
+
+  return true;
+}
+
+
+  function validateSearch() {
+    var from = document.getElementById("txtBirthdayFrom").value.trim();
+    var to   = document.getElementById("txtBirthdayTo").value.trim();
+
+    // Format check
+    if (from !== "" && !isValidYmd(from)) {
+      alert("Invalid Birthday (From).");
+      return false;
+    }
+
+    if (to !== "" && !isValidYmd(to)) {
+      alert("Invalid Birthday (To).");
+      return false;
+    }
+
+    // Range check (string compare là OK vì YYYY/MM/DD)
+    if (from !== "" && to !== "" && to < from) {
+      alert("There is an error in the range input of Birthday");
+      return false;
+    }
+
+    return true;
+  }
+</script>
+
