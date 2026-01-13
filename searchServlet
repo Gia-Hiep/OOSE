@@ -1,0 +1,42 @@
+// total: tổng record sau search
+// page: trang hiện tại (>=1)
+// lastPage: trang cuối (>=1)
+
+boolean disFirst;
+boolean disPrev;
+boolean disNext;
+boolean disLast;
+boolean disDelete;
+
+if (total == 0) {
+    // 4.1: không có data
+    disFirst = true;
+    disPrev  = true;
+    disNext  = true;
+    disLast  = true;
+    disDelete = true;   // ✅ thêm Delete
+} else if (total <= PAGE_SIZE) {
+    // 4.2.1: có data và <= 15 record
+    disFirst = true;
+    disPrev  = true;
+    disNext  = true;
+    disLast  = true;
+    disDelete = false;  // ✅ có data thì chưa disable do "no data" nữa
+                        // (enable/disable theo checkbox sẽ làm sau bằng JS)
+} else {
+    // 4.2.2: có data và > 15 record
+    // ✅ phụ thuộc trang hiện tại
+    disFirst = (page == 1);
+    disPrev  = (page == 1);
+    disNext  = (page == lastPage);
+    disLast  = (page == lastPage);
+
+    disDelete = false; // ✅ có data
+}
+
+// set ra JSP
+req.setAttribute("disFirst", disFirst);
+req.setAttribute("disPrev", disPrev);
+req.setAttribute("disNext", disNext);
+req.setAttribute("disLast", disLast);
+req.setAttribute("disDelete", disDelete);
