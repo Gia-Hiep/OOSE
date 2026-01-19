@@ -1,6 +1,8 @@
 public MstUser login(String userId, String password) {
     return userDao.findLoginUser(userId, password);
 }
+
+SERVLET
 MstUser loginUser = t001Service.login(userId, password);
 
 if (loginUser == null) {
