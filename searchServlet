@@ -1,42 +1,82 @@
-// total: tổng record sau search
-// page: trang hiện tại (>=1)
-// lastPage: trang cuối (>=1)
+package com.app.servlet;
 
-boolean disFirst;
-boolean disPrev;
-boolean disNext;
-boolean disLast;
-boolean disDelete;
+import com.app.dao.CustomerDAO;
+import com.app.service.T002Service;
+import com.app.service.SearchResult;
 
-if (total == 0) {
-    // 4.1: không có data
-    disFirst = true;
-    disPrev  = true;
-    disNext  = true;
-    disLast  = true;
-    disDelete = true;   // ✅ thêm Delete
-} else if (total <= PAGE_SIZE) {
-    // 4.2.1: có data và <= 15 record
-    disFirst = true;
-    disPrev  = true;
-    disNext  = true;
-    disLast  = true;
-    disDelete = false;  // ✅ có data thì chưa disable do "no data" nữa
-                        // (enable/disable theo checkbox sẽ làm sau bằng JS)
-} else {
-    // 4.2.2: có data và > 15 record
-    // ✅ phụ thuộc trang hiện tại
-    disFirst = (page == 1);
-    disPrev  = (page == 1);
-    disNext  = (page == lastPage);
-    disLast  = (page == lastPage);
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
 
-    disDelete = false; // ✅ có data
+import java.io.IOException;
+
+@WebServlet("/customers")
+public class SearchServlet extends HttpServlet {
+
+    private static final String VIEW = "/search.jsp";
+
+    private final CustomerDAO customerDAO = new CustomerDAO();
+    private final T002Service service = new T002Service(customerDAO);
+
+    private int parseInt(String v, int def) {
+        try {
+            int x = Integer.parseInt(v);
+            return x <= 0 ? def : x;
+        } catch (Exception e) {
+            return def;
+        }
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        // login check
+        HttpSession session = req.getSession(false);
+        if (session == null) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+
+        // hiển thị USERNAME (ưu tiên) hoặc USERID fallback
+        String loginUser = (String) session.getAttribute("LOGIN_USERNAME");
+        if (loginUser == null || loginUser.trim().isEmpty()) {
+            loginUser = (String) session.getAttribute("LOGIN_USER");
+        }
+        if (loginUser == null || loginUser.trim().isEmpty()) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+
+        // lấy điều kiện từ màn hình
+        String customerName = req.getParameter("txtCustomerName");
+        String sex = req.getParameter("cboSex"); // 0/1 theo spec
+        String bFrom = req.getParameter("txtBirthdayFrom"); // yyyy/MM/dd
+        String bTo = req.getParameter("txtBirthdayTo");     // yyyy/MM/dd
+        int page = parseInt(req.getParameter("page"), 1);
+
+        // gọi service search
+        SearchResult r = service.search(loginUser, customerName, sex, bFrom, bTo, page);
+
+        // set attributes cho JSP
+        req.setAttribute("loginUser", r.getLoginUserName());
+
+        req.setAttribute("txtCustomerName", r.getCustomerName());
+        req.setAttribute("cboSex", r.getSex());
+        req.setAttribute("txtBirthdayFrom", r.getBirthdayFrom());
+        req.setAttribute("txtBirthdayTo", r.getBirthdayTo());
+
+        req.setAttribute("rows", r.getRows());
+
+        req.setAttribute("total", r.getTotal());
+        req.setAttribute("page", r.getPage());
+        req.setAttribute("lastPage", r.getLastPage());
+
+        req.setAttribute("disFirst", r.isDisFirst());
+        req.setAttribute("disPrev", r.isDisPrev());
+        req.setAttribute("disNext", r.isDisNext());
+        req.setAttribute("disLast", r.isDisLast());
+        req.setAttribute("disDelete", r.isDisDelete());
+
+        req.getRequestDispatcher(VIEW).forward(req, resp);
+    }
 }
-
-// set ra JSP
-req.setAttribute("disFirst", disFirst);
-req.setAttribute("disPrev", disPrev);
-req.setAttribute("disNext", disNext);
-req.setAttribute("disLast", disLast);
-req.setAttribute("disDelete", disDelete);
