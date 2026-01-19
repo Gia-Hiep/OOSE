@@ -1,0 +1,31 @@
+package com.app.dao;
+
+import com.app.common.DBCommon;
+
+public class UserDAO {
+
+    public int countUser(String userId, String password) {
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT COUNT(*) AS CNT FROM MSTUSER ");
+        sql.append("WHERE USERID = ? ");
+        sql.append("AND [PASSWORD] = ? ");
+        sql.append("AND DELETE_YMD IS NULL ");
+
+        Object[] params = new Object[] { userId, password };
+
+        return DBCommon.queryInt(sql.toString(), params, "CNT");
+    }
+
+    public String findUserName(String userId) {
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT USERNAME FROM MSTUSER ");
+        sql.append("WHERE USERID = ? ");
+        sql.append("AND DELETE_YMD IS NULL ");
+
+        Object[] params = new Object[] { userId };
+
+        return DBCommon.queryString(sql.toString(), params, "USERNAME");
+    }
+}
