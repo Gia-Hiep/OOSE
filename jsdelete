@@ -1,0 +1,23 @@
+<script>
+  function doDelete() {
+    // 1) lấy danh sách checkbox đã tick
+    var checked = document.querySelectorAll(".chkDetail:checked");
+    if (!checked || checked.length === 0) {
+      alert("Chưa chọn bản ghi để xóa");
+      return;
+    }
+
+    // 2) build danh sách CUSTOMER_ID
+    var ids = [];
+    for (var i = 0; i < checked.length; i++) {
+      ids.push(checked[i].value);
+    }
+
+    // 3) set hidden để submit
+    document.getElementById("deleteIds").value = ids.join(",");
+    document.getElementById("action").value = "delete";
+
+    // 4) submit form
+    document.getElementById("searchForm").submit();
+  }
+</script>
