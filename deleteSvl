@@ -1,0 +1,91 @@
+@Override
+protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+        throws ServletException, IOException {
+
+    req.setCharacterEncoding("UTF-8");
+
+    // check login
+    HttpSession session = req.getSession(false);
+    if (session == null) {
+        resp.sendRedirect(req.getContextPath() + "/login");
+        return;
+    }
+
+    String loginUser = (String) session.getAttribute("LOGIN_USERNAME");
+    if (loginUser == null || loginUser.trim().isEmpty()) {
+        loginUser = (String) session.getAttribute("LOGIN_USER");
+    }
+    if (loginUser == null || loginUser.trim().isEmpty()) {
+        resp.sendRedirect(req.getContextPath() + "/login");
+        return;
+    }
+
+    // get conditions
+    String customerName = req.getParameter("txtCustomerName");
+    String sex = req.getParameter("cboSex");
+    String bFrom = req.getParameter("txtBirthdayFrom");
+    String bTo = req.getParameter("txtBirthdayTo");
+
+    String action = req.getParameter("action");
+    if (action == null) action = "search";
+
+    SearchResult r;
+
+    if ("delete".equals(action)) {
+        // parse deleteIds "1,2,3"
+        String s = req.getParameter("deleteIds");
+        List<Long> ids = new java.util.ArrayList<Long>();
+
+        if (s != null && !s.trim().isEmpty()) {
+            String[] parts = s.split(",");
+            for (int i = 0; i < parts.length; i++) {
+                try {
+                    ids.add(Long.parseLong(parts[i].trim()));
+                } catch (Exception ignore) {}
+            }
+        }
+
+        // server-side guard (phòng khi JS bị tắt)
+        if (ids.isEmpty()) {
+            // không alert được ở server; giữ màn hình + không xóa
+            r = service.search(loginUser, customerName, sex, bFrom, bTo, 1);
+        } else {
+            r = service.deleteAndSearch(loginUser, customerName, sex, bFrom, bTo, ids);
+        }
+
+    } else {
+        // search bình thường
+        int page = 1;
+        try {
+            page = Integer.parseInt(req.getParameter("page"));
+            if (page <= 0) page = 1;
+        } catch (Exception e) {
+            page = 1;
+        }
+        r = service.search(loginUser, customerName, sex, bFrom, bTo, page);
+    }
+
+    // set attributes for JSP
+    req.setAttribute("loginUser", r.getLoginUserName());
+
+    req.setAttribute("txtCustomerName", r.getCustomerName());
+    req.setAttribute("cboSex", r.getSex());
+    req.setAttribute("txtBirthdayFrom", r.getBirthdayFrom());
+    req.setAttribute("txtBirthdayTo", r.getBirthdayTo());
+
+    req.setAttribute("rows", r.getRows());
+
+    req.setAttribute("total", r.getTotal());
+    req.setAttribute("page", r.getPage());
+    req.setAttribute("lastPage", r.getLastPage());
+
+    req.setAttribute("disFirst", r.isDisFirst());
+    req.setAttribute("disPrev", r.isDisPrev());
+    req.setAttribute("disNext", r.isDisNext());
+    req.setAttribute("disLast", r.isDisLast());
+
+    // 2.2 Delete disable khi không có record
+    req.setAttribute("disDelete", r.isDisDelete());
+
+    req.getRequestDispatcher("/search.jsp").forward(req, resp);
+}
