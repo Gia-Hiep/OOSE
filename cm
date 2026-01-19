@@ -1,0 +1,72 @@
+package com.app.common;
+
+import com.app.db.DBConnection;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * DBCommon
+ * - Common hóa xử lý JDBC lặp lại trong DAO (login/search...)
+ */
+public class DBCommon {
+
+    private DBCommon() {}
+
+    /**
+     * Execute query trả về int (vd: COUNT(*) AS CNT)
+     */
+    public static int queryInt(String sql, Object[] params, String columnName) {
+        try (Connection cn = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            if (params != null) {
+                for (int i = 0; i < params.length; i++) {
+                    ps.setObject(i + 1, params[i]);
+                }
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(columnName);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    /**
+     * Execute query trả về String (vd: USERNAME)
+     */
+    public static String queryString(String sql, Object[] params, String columnName) {
+        try (Connection cn = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            if (params != null) {
+                for (int i = 0; i < params.length; i++) {
+                    ps.setObject(i + 1, params[i]);
+                }
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String v = rs.getString(columnName);
+                    return v == null ? "" : v;
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+}
