@@ -1,0 +1,28 @@
+public int deleteLogicByIds(List<Long> ids) {
+    if (ids == null || ids.isEmpty()) return 0;
+
+    StringBuilder sql = new StringBuilder();
+    sql.append("UPDATE MSTCUSTOMER ");
+    sql.append("SET DELETE_YMD = GETDATE() "); // SYSDATE bên SQL Server = GETDATE()
+    sql.append("WHERE CUSTOMER_ID IN (");
+
+    for (int i = 0; i < ids.size(); i++) {
+        if (i > 0) sql.append(",");
+        sql.append("?");
+    }
+    sql.append(") ");
+
+    try (Connection cn = DB.getConnection();
+         PreparedStatement ps = cn.prepareStatement(sql.toString())) {
+
+        for (int i = 0; i < ids.size(); i++) {
+            ps.setLong(i + 1, ids.get(i));
+        }
+
+        return ps.executeUpdate();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
