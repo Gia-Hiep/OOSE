@@ -1,3 +1,15 @@
 public MstUser login(String userId, String password) {
     return userDao.findLoginUser(userId, password);
 }
+MstUser loginUser = t001Service.login(userId, password);
+
+if (loginUser == null) {
+    request.setAttribute("errorMessage", "ユーザー名またはパスワードが間違っています");
+    request.getRequestDispatcher("login.jsp").forward(request, response);
+    return;
+}
+
+HttpSession session = request.getSession(true);
+session.setAttribute("LOGIN_USER", loginUser);
+
+response.sendRedirect(request.getContextPath() + "/customers");
