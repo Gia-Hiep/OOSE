@@ -1,0 +1,143 @@
+package com.app.sco;
+
+/**
+ * SearchSCO (Search Condition Object)
+ * - Gom các điều kiện search của màn hình T002 (Search Customer)
+ */
+public class SearchSCO {
+
+    private String customerName;   // txtCustomerName
+    private String sex;            // cboSex: "" | "0" | "1"
+    private String birthdayFrom;   // txtBirthdayFrom: yyyy/MM/dd
+    private String birthdayTo;     // txtBirthdayTo: yyyy/MM/dd
+
+    private int page;              // current page (1-based)
+
+    public SearchSCO() {
+        this.customerName = "";
+        this.sex = "";
+        this.birthdayFrom = "";
+        this.birthdayTo = "";
+        this.page = 1;
+    }
+
+    public String getCustomerName() { return customerName; }
+    public void setCustomerName(String customerName) { this.customerName = customerName; }
+
+    public String getSex() { return sex; }
+    public void setSex(String sex) { this.sex = sex; }
+
+    public String getBirthdayFrom() { return birthdayFrom; }
+    public void setBirthdayFrom(String birthdayFrom) { this.birthdayFrom = birthdayFrom; }
+
+    public String getBirthdayTo() { return birthdayTo; }
+    public void setBirthdayTo(String birthdayTo) { this.birthdayTo = birthdayTo; }
+
+    public int getPage() { return page; }
+    public void setPage(int page) { this.page = page; }
+
+    /** Null-safe + trim (call trước khi dùng) */
+    public void normalize() {
+        customerName = customerName == null ? "" : customerName.trim();
+        sex = sex == null ? "" : sex.trim();
+        birthdayFrom = birthdayFrom == null ? "" : birthdayFrom.trim();
+        birthdayTo = birthdayTo == null ? "" : birthdayTo.trim();
+        if (page <= 0) page = 1;
+    }
+}
+
+
+//CUSTOMER DAO
+import com.app.sco.SearchSCO;
+...
+public int countSearch(SearchSCO sco) {
+    String name = sco.getCustomerName();
+    String sex = sco.getSex();
+    String bFrom = sco.getBirthdayFrom();
+    String bTo = sco.getBirthdayTo();
+    ...
+}
+public List<Customer> search(SearchSCO sco, int offset, int limit) {
+    String name = sco.getCustomerName();
+    String sex = sco.getSex();
+    String bFrom = sco.getBirthdayFrom();
+    String bTo = sco.getBirthdayTo();
+    ...
+}
+//T002SERVICE
+import com.app.sco.SearchSCO;
+...
+public SearchResult search(String loginUserName, SearchSCO sco) {
+
+    sco.normalize();
+
+    int page = sco.getPage();
+
+    int total = customerDAO.countSearch(sco);
+    int lastPage = (total == 0) ? 1 : (int) Math.ceil(total * 1.0 / PAGE_SIZE);
+    if (page > lastPage) page = lastPage;
+
+    int offset = (page - 1) * PAGE_SIZE;
+    List<Customer> rows = customerDAO.search(sco, offset, PAGE_SIZE);
+
+    // disable buttons (y như anh đang có)
+    boolean disFirst, disPrev, disNext, disLast, disDelete;
+    if (total == 0) {
+        disFirst = disPrev = disNext = disLast = true;
+        disDelete = true;
+    } else if (total <= PAGE_SIZE) {
+        disFirst = disPrev = disNext = disLast = true;
+        disDelete = false;
+    } else {
+        disFirst = (page == 1);
+        disPrev = (page == 1);
+        disNext = (page == lastPage);
+        disLast = (page == lastPage);
+        disDelete = false;
+    }
+
+    SearchResult r = new SearchResult();
+    r.setLoginUserName(loginUserName);
+
+    // reflect điều kiện lại JSP
+    r.setCustomerName(sco.getCustomerName());
+    r.setSex(sco.getSex());
+    r.setBirthdayFrom(sco.getBirthdayFrom());
+    r.setBirthdayTo(sco.getBirthdayTo());
+
+    r.setRows(rows);
+    r.setTotal(total);
+    r.setPage(page);
+    r.setLastPage(lastPage);
+
+    r.setDisFirst(disFirst);
+    r.setDisPrev(disPrev);
+    r.setDisNext(disNext);
+    r.setDisLast(disLast);
+    r.setDisDelete(disDelete);
+
+    return r;
+}
+//SEARCHSERVLET
+import com.app.sco.SearchSCO;
+
+private SearchSCO buildSCO(HttpServletRequest req) {
+    SearchSCO sco = new SearchSCO();
+    sco.setCustomerName(req.getParameter("txtCustomerName"));
+    sco.setSex(req.getParameter("cboSex"));
+    sco.setBirthdayFrom(req.getParameter("txtBirthdayFrom"));
+    sco.setBirthdayTo(req.getParameter("txtBirthdayTo"));
+
+    // page (POST paging)
+    try {
+        sco.setPage(Integer.parseInt(req.getParameter("page")));
+    } catch (Exception e) {
+        sco.setPage(1);
+    }
+
+    sco.normalize();
+    return sco;
+}
+//TRONG DOGET DOPOST
+SearchSCO sco = buildSCO(req);
+SearchResult r = t002Service.search(loginUser, sco);
