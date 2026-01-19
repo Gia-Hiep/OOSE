@@ -1,0 +1,14 @@
+public SearchResult deleteAndSearch(String loginUserName,
+                                   String customerName, String sex,
+                                   String birthdayFrom, String birthdayTo,
+                                   List<Long> deleteIds) {
+
+    // 1) delete logic (nếu có ids)
+    if (deleteIds != null && !deleteIds.isEmpty()) {
+        customerDAO.deleteLogicByIds(deleteIds);
+    }
+
+    // 2) search lại theo điều kiện trên màn hình (spec 2.1)
+    // sau delete cho về page 1 để tránh page vượt lastPage
+    return search(loginUserName, customerName, sex, birthdayFrom, birthdayTo, 1);
+}
