@@ -1,0 +1,9 @@
+<%
+boolean disDelete = request.getAttribute("disDelete") != null && (Boolean) request.getAttribute("disDelete");
+%>
+
+<button id="btnDelete" type="button"
+        onclick="doDelete()"
+        <%= disDelete ? "disabled data-server-disabled='1'" : "" %>>
+  Delete
+</button>
