@@ -28,4 +28,32 @@ public class UserDAO {
 
         return DBCommon.queryString(sql.toString(), params, "USERNAME");
     }
+public MstUser findLoginUser(String userId, String password) {
+
+    StringBuilder sql = new StringBuilder();
+    sql.append("SELECT USERID, USERNAME ");
+    sql.append("FROM MSTUSER ");
+    sql.append("WHERE USERID = ? ");
+    sql.append("AND [PASSWORD] = ? ");
+    sql.append("AND DELETE_YMD IS NULL ");
+
+    try (Connection cn = DBConnection.getInstance().getConnection();
+         PreparedStatement ps = cn.prepareStatement(sql.toString())) {
+
+        ps.setString(1, userId);
+        ps.setString(2, password);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                MstUser user = new MstUser();
+                user.setUserId(rs.getString("USERID"));
+                user.setUserName(rs.getString("USERNAME"));
+                return user;
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return null;
+}
 }
